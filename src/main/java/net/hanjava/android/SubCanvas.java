@@ -11,11 +11,16 @@ public class SubCanvas extends Canvas {
     public static boolean debug = false;
 
     public static SubCanvas getSubCanvas(Canvas canvas) {
+        SubCanvas result = null;
         if (canvas instanceof SubCanvas) {
-            return (SubCanvas) canvas;
+            result = (SubCanvas) canvas;
+        } else {
+            result = new SubCanvas(canvas);
         }
-        SubCanvas subCanvas = new SubCanvas(canvas);
-        return subCanvas;
+        if(debug) {
+            Log.d("SubCanvas", "getSubCanvas() on "+Thread.currentThread());
+        }
+        return result;
     }
 
     private final Canvas delegate;
