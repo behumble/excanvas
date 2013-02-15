@@ -7,18 +7,15 @@ import android.util.Log;
 import javax.microedition.khronos.opengles.GL;
 import java.util.Arrays;
 
-public class SubCanvas extends Canvas {
+public class ExCanvas extends Canvas {
     public static boolean debug = false;
 
-    public static SubCanvas getSubCanvas(Canvas canvas) {
-        SubCanvas result = null;
-        if (canvas instanceof SubCanvas) {
-            result = (SubCanvas) canvas;
+    public static ExCanvas getSubCanvas(Canvas canvas) {
+        ExCanvas result = null;
+        if (canvas instanceof ExCanvas) {
+            result = (ExCanvas) canvas;
         } else {
-            result = new SubCanvas(canvas);
-        }
-        if(debug) {
-            Log.d("SubCanvas", "getSubCanvas() on "+Thread.currentThread());
+            result = new ExCanvas(canvas);
         }
         return result;
     }
@@ -26,9 +23,9 @@ public class SubCanvas extends Canvas {
     private final Canvas delegate;
     private final String tag;
 
-    private SubCanvas(Canvas delegate) {
+    private ExCanvas(Canvas delegate) {
         this.delegate = delegate;
-        tag = "SubCanvas:" + delegate.getClass().getSimpleName();
+        tag = "ExCanvas:" + delegate.getClass().getSimpleName();
     }
 
     public Canvas getDelegate() {
