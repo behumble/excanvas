@@ -1,5 +1,7 @@
 package net.hanjava.android.ext;
 
+import java.util.Arrays;
+
 /**
  * for Save/Load with minimal number of classes and members.
  * note that not optimized and subject to change
@@ -38,5 +40,16 @@ public class PathOp {
     public Object param;
     public PathOp(int opId, Object param) {
         this.opId = opId;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PathOp[opid:%d] %s", opId, paramToString(param));
+    }
+
+    private static String paramToString(Object param) {
+        if(param==null) return "";  // do not print
+        if(param instanceof Object[]) return Arrays.toString((Object[]) param);
+        return param.toString();
     }
 }
