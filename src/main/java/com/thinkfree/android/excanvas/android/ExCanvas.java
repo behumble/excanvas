@@ -1,10 +1,9 @@
-package net.hanjava.android;
+package com.thinkfree.android.excanvas.android;
 
 
 import android.graphics.*;
 import android.util.Log;
 
-import javax.microedition.khronos.opengles.GL;
 import java.util.Arrays;
 
 /**

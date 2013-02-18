@@ -1,7 +1,7 @@
-package net.hanjava.android.ext;
+package com.thinkfree.android.excanvas.android.ext;
 
 import android.graphics.Path;
-import net.hanjava.android.GraphicsFactory;
+import com.thinkfree.android.excanvas.android.GraphicsFactory;
 
 /**
  * Extended Graphics Factory

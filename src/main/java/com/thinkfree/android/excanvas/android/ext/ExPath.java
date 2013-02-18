@@ -1,10 +1,10 @@
-package net.hanjava.android.ext;
+package com.thinkfree.android.excanvas.android.ext;
 
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.Log;
-import net.hanjava.android.ExCanvas;
+import com.thinkfree.android.excanvas.android.ExCanvas;
 
 import java.util.ArrayList;
 import java.util.Arrays;

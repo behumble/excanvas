@@ -1,4 +1,4 @@
-package net.hanjava.android;
+package com.thinkfree.android.excanvas.android;
 
 import android.graphics.*;
 

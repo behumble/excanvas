@@ -1,4 +1,4 @@
-package net.hanjava.android.ext;
+package com.thinkfree.android.excanvas.android.ext;
 
 import java.util.Arrays;
 
