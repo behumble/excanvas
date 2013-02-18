@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thinkfree.android</groupId>
     <artifactId>excanvas</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <description>android.graphics.Canvas extender</description>
 
     <properties>
@@ -44,7 +44,7 @@
         <connection>scm:git:git@github.com:behumble/excanvas.git</connection>
         <url>scm:git:git@github.com:behumble/excanvas.git</url>
         <developerConnection>scm:git:git@github.com:behumble/excanvas.git</developerConnection>
-      <tag>excanvas-0.1</tag>
+      <tag>test-0.1</tag>
   </scm>
 
     <build>
