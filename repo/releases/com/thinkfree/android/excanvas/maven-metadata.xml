@@ -3,9 +3,11 @@
   <groupId>com.thinkfree.android</groupId>
   <artifactId>excanvas</artifactId>
   <versioning>
+    <release>0.1</release>
     <versions>
       <version>0.1-SNAPSHOT</version>
+      <version>0.1</version>
     </versions>
-    <lastUpdated>20130218062653</lastUpdated>
+    <lastUpdated>20130218070953</lastUpdated>
   </versioning>
 </metadata>
