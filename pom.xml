@@ -67,12 +67,8 @@
     </build>
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <url>file:repo/releases</url>
+            <id>local-free</id>
+            <url>file:${project.basedir}/repo/releases</url>
         </repository>
-        <snapshotRepository>
-            <id>snapshot-github</id>
-            <url>https://github.com/behumble/excanvas.git/raw/master/repo/snapshots</url>
-        </snapshotRepository>
     </distributionManagement>
 </project>
