@@ -1,4 +1,4 @@
-package com.thinkfree.android.excanvas.android;
+package com.thinkfree.android.excanvas;
 
 import android.graphics.*;
 

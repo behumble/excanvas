@@ -1,26 +1,26 @@
-package com.thinkfree.android.excanvas.android.ext;
+package com.thinkfree.android.excanvas.replay;
 
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.Log;
-import com.thinkfree.android.excanvas.android.ExCanvas;
+import com.thinkfree.android.excanvas.ExCanvas;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ExPath extends Path {
-    private static final String TAG = "ExPath";
+public class ReplayablePath extends Path {
+    private static final String TAG = "ReplayablePath";
     private List opList = new ArrayList<PathOp>();
 
-    public ExPath() {
+    public ReplayablePath() {
         if(ExCanvas.debug) {
-            Log.d(TAG, "ExPath()");
+            Log.d(TAG, "ReplayablePath()");
         }
     }
 
-    public ExPath(Path src) {
+    public ReplayablePath(Path src) {
         throw new RuntimeException("Unsupported");
     }
 

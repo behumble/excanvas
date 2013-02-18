@@ -1,4 +1,4 @@
-package com.thinkfree.android.excanvas.android.ext;
+package com.thinkfree.android.excanvas.replay;
 
 import java.util.Arrays;
 
