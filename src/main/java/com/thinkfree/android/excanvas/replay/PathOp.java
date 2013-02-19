@@ -40,6 +40,7 @@ public class PathOp {
     public Object param;
     public PathOp(int opId, Object param) {
         this.opId = opId;
+        this.param = param;
     }
 
     @Override
