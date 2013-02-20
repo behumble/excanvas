@@ -1,40 +1,86 @@
-package com.thinkfree.android.excanvas;
-
+package com.thinkfree.android.excanvas.replay;
 
 import android.graphics.*;
-import android.util.Log;
+import com.thinkfree.android.excanvas.ExCanvas;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Extended Canvas implemented in delegation.
- * use <code>ExCanvas.getExCanvas(Canvas)</code> to wrap a given Canvas object with ExCanvas instance.
- * the javadoc comments are copied from original <code>Canvas.java</code>
- * @author Alan Goo
+ * an ExCanvas recording mutation operations.
  */
-public class ExCanvas extends Canvas {
-    public static boolean debug = false;
+public class ReplayableCanvas extends ExCanvas {
+    public static final int ID_SET_BITMAP_Bitmap = 0;
+    public static final int ID_SET_DENSITY = 1;
+    public static final int ID_SAVE = 2;
+    public static final int ID_SAVE_int = 3;
+    public static final int ID_SAVE_LAYER_RectF_Paint_int = 4;
+    public static final int ID_SAVE_LAYER_float_float_float_float_Paint_int = 5;
+    public static final int ID_SAVE_LAYER_ALPHA_RectF_int_int = 6;
+    public static final int ID_SAVE_LAYER_ALPHA_float_float_float_float_int_int = 7;
+    public static final int ID_RESTORE = 8;
+    public static final int ID_RESTORE_TO_COUNT_int = 9;
+    public static final int ID_TRANSLATE_float_float = 10;
+    public static final int ID_SCALE_float_float = 11;
+    public static final int ID_ROTATE_float = 12;
+    public static final int ID_SKEW_float_float = 13;
+    public static final int ID_CONCAT_Matrix = 14;
+    public static final int ID_SET_MATRIX_Matrix = 15;
+    public static final int ID_CLIP_RECT_RectF_Op = 16;
+    public static final int ID_CLIP_RECT_Rect_Op = 17;
+    public static final int ID_CLIP_RECT_RectF = 18;
+    public static final int ID_CLIP_RECT_Rect = 19;
+    public static final int ID_CLIP_RECT_float_float_float_float_Op = 20;
+    public static final int ID_CLIP_RECT_float_float_float_float = 21;
+    public static final int ID_CLIP_RECT_int_int_int_int = 22;
+    public static final int ID_CLIP_PATH_Path_Op = 23;
+    public static final int ID_CLIP_PATH_Path = 24;
+    public static final int ID_CLIP_REGION_Region_Op = 25;
+    public static final int ID_CLIP_REGION_Region = 26;
+    public static final int ID_SET_DRAW_FILTER_DrawFilter = 27;
+    public static final int ID_DRAW_RGB_int_int_int = 28;
+    public static final int ID_DRAW_ARGB_int_int_int_int = 29;
+    public static final int ID_DRAW_COLOR_int = 30;
+    public static final int ID_DRAW_COLOR_int_Mode = 31;
+    public static final int ID_DRAW_PAINT_Paint = 32;
+    public static final int ID_DRAW_POINTS_floats_int_int_Paint = 33;
+    public static final int ID_DRAW_POINTS_floats_Paint = 34;
+    public static final int ID_DRAW_POINT_float_float_Paint = 35;
+    public static final int ID_DRAW_LINE_float_float_float_float_Paint = 36;
+    public static final int ID_DRAW_LINES_floats_int_int_Paint = 37;
+    public static final int ID_DRAW_LINES_floats_Paint = 38;
+    public static final int ID_DRAW_RECT_RectF_Paint = 39;
+    public static final int ID_DRAW_RECT_Rect_Paint = 40;
+    public static final int ID_DRAW_RECT_float_float_float_float_Paint = 41;
+    public static final int ID_DRAW_OVAL_RectF_Paint = 42;
+    public static final int ID_DRAW_CIRCLE_float_float_float_Paint = 43;
+    public static final int ID_DRAW_ARC_RectF_float_float_boolean_Paint = 44;
+    public static final int ID_DRAW_ROUND_RECT_RectF_float_float_Paint = 45;
+    public static final int ID_DRAW_PATH_Path_Paint = 46;
+    public static final int ID_DRAW_BITMAP_Bitmap_float_float_Paint = 47;
+    public static final int ID_DRAW_BITMAP_Bitmap_Rect_RectF_Paint = 48;
+    public static final int ID_DRAW_BITMAP_Bitmap_Rect_Rect_Paint = 49;
+    public static final int ID_DRAW_BITMAP_ints_int_int_float_float_int_int_boolean_Paint = 50;
+    public static final int ID_DRAW_BITMAP_ints_int_int_int_int_int_int_boolean_Paint = 51;
+    public static final int ID_DRAW_BITMAP_Bitmap_Matrix_Paint = 52;
+    public static final int ID_DRAW_BITMAP_MESH_Bitmap_int_int_floats_int_ints_int_Paint = 53;
+    public static final int ID_DRAW_VERTICES_VertexMode_int_floats_int_floats_int_ints_int_shorts_int_int_Paint = 54;
+    public static final int ID_DRAW_TEXT_chars_int_int_float_float_Paint = 55;
+    public static final int ID_DRAW_TEXT_String_float_float_Paint = 56;
+    public static final int ID_DRAW_TEXT_String_int_int_float_float_Paint = 57;
+    public static final int ID_DRAW_TEXT_CharSequence_int_int_float_float_Paint = 58;
+    public static final int ID_DRAW_POS_TEXT_chars_int_int_floats_Paint = 59;
+    public static final int ID_DRAW_POS_TEXT_String_floats_Paint = 60;
+    public static final int ID_DRAW_TEXT_ON_PATH_chars_int_int_Path_float_float_Paint = 61;
+    public static final int ID_DRAW_TEXT_ON_PATH_String_Path_float_float_Paint = 62;
+    public static final int ID_DRAW_PICTURE_Picture = 63;
+    public static final int ID_DRAW_PICTURE_Picture_RectF = 64;
+    public static final int ID_DRAW_PICTURE_Picture_Rect = 65;
 
-    public static ExCanvas getExCanvas(Canvas canvas) {
-        ExCanvas result = null;
-        if (canvas instanceof ExCanvas) {
-            result = (ExCanvas) canvas;
-        } else {
-            result = new ExCanvas(canvas);
-        }
-        return result;
-    }
+    public List<Instruction> opList = new ArrayList<Instruction>();
 
-    private final Canvas peer;
-    private final String tag;
-
-    protected ExCanvas(Canvas peer) {
-        this.peer = peer;
-        tag = "ExCanvas:" + peer.getClass().getSimpleName();
-    }
-
-    public Canvas getPeer() {
-        return this.peer;
+    private ReplayableCanvas(Canvas peer) {
+        super(peer);
     }
 
     /**
@@ -42,93 +88,30 @@ public class ExCanvas extends Canvas {
      * updates the canvas's target density to match that of the bitmap.
      *
      * @param bitmap Specifies a mutable bitmap for the canvas to draw into.
-     *
      * @see #setDensity(int)
      * @see #getDensity()
      */
     @Override
     public void setBitmap(Bitmap bitmap) {
-        peer.setBitmap(bitmap);
-        if (debug) {
-            Log.d(tag, "setBitmap(" + bitmap + ")");
-        }
-    }
-
-    /**
-     * Return true if the device that the current layer draws into is opaque
-     * (i.e. does not support per-pixel alpha).
-     */
-    @Override
-    public boolean isOpaque() {
-        final boolean result = peer.isOpaque();
-        if (debug) {
-            Log.d(tag, "isOpaque():" + result);
-        }
-        return result;
-    }
-
-    /**
-     * Returns the width of the current drawing layer
-     */
-    @Override
-    public int getWidth() {
-        final int result = peer.getWidth();
-        if (debug) {
-            Log.d(tag, "getWidth():" + result);
-        }
-        return result;
-    }
-
-    /**
-     * Returns the height of the current drawing layer
-     */
-    @Override
-    public int getHeight() {
-        final int result = peer.getHeight();
-        if (debug) {
-            Log.d(tag, "getHeight():" + result);
-        }
-        return result;
-    }
-
-    /**
-     * <p>Returns the target density of the canvas.  The default density is
-     * derived from the density of its backing bitmap, or
-     * {@link Bitmap#DENSITY_NONE} if there is not one.</p>
-     *
-     * @return Returns the current target density of the canvas, which is used
-     * to determine the scaling factor when drawing a bitmap into it.
-     *
-     * @see #setDensity(int)
-     * @see Bitmap#getDensity()
-     */
-    @Override
-    public int getDensity() {
-        final int result = peer.getDensity();
-        if (debug) {
-            Log.d(tag, "getDensity():" + result);
-        }
-        return result;
+        super.setBitmap(bitmap);
+        recordOp(ID_SET_BITMAP_Bitmap, bitmap);
     }
 
     /**
      * <p>Specifies the density for this Canvas' backing bitmap.  This modifies
      * the target density of the canvas itself, as well as the density of its
-     * backing bitmap via {@link Bitmap#setDensity(int) Bitmap.setDensity(int)}.
+     * backing bitmap via {@link android.graphics.Bitmap#setDensity(int) Bitmap.setDensity(int)}.
      *
      * @param density The new target density of the canvas, which is used
-     * to determine the scaling factor when drawing a bitmap into it.  Use
-     * {@link Bitmap#DENSITY_NONE} to disable bitmap scaling.
-     *
+     *                to determine the scaling factor when drawing a bitmap into it.  Use
+     *                {@link android.graphics.Bitmap#DENSITY_NONE} to disable bitmap scaling.
      * @see #getDensity()
-     * @see Bitmap#setDensity(int)
+     * @see android.graphics.Bitmap#setDensity(int)
      */
     @Override
     public void setDensity(int density) {
-        peer.setDensity(density);
-        if (debug) {
-            Log.d(tag, "setDensity(" + density + ")");
-        }
+        super.setDensity(density);
+        recordOp(ID_SET_DENSITY, density);
     }
 
     /**
@@ -142,10 +125,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int save() {
-        final int result = peer.save();
-        if (debug) {
-            Log.d(tag, "save():" + result);
-        }
+        int result = super.save();
+        recordOp(ID_SAVE);
         return result;
     }
 
@@ -162,10 +143,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int save(int saveFlags) {
-        final int result = peer.save(saveFlags);
-        if (debug) {
-            Log.d(tag, "save(" + saveFlags + "):" + result);
-        }
+        int result = super.save(saveFlags);
+        recordOp(ID_SAVE_int);
         return result;
     }
 
@@ -178,19 +157,17 @@ public class ExCanvas extends Canvas {
      * copy. When the balancing call to restore() is made, this copy is
      * deleted and the previous matrix/clip state is restored.
      *
-     * @param bounds May be null. The maximum size the offscreen bitmap
-     *               needs to be (in local coordinates)
-     * @param paint  This is copied, and is applied to the offscreen when
-     *               restore() is called.
-     * @param saveFlags  see _SAVE_FLAG constants
-     * @return       value to pass to restoreToCount() to balance this save()
+     * @param bounds    May be null. The maximum size the offscreen bitmap
+     *                  needs to be (in local coordinates)
+     * @param paint     This is copied, and is applied to the offscreen when
+     *                  restore() is called.
+     * @param saveFlags see _SAVE_FLAG constants
+     * @return value to pass to restoreToCount() to balance this save()
      */
     @Override
     public int saveLayer(RectF bounds, Paint paint, int saveFlags) {
-        final int result = peer.saveLayer(bounds, paint, saveFlags);
-        if (debug) {
-            Log.d(tag, "saveLayer(" + bounds + "," + paint + "," + saveFlags + "):" + result);
-        }
+        int result = super.saveLayer(bounds, paint, saveFlags);
+        recordOp(ID_SAVE_LAYER_RectF_Paint_int, bounds, paint, saveFlags);
         return result;
     }
 
@@ -199,10 +176,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayer(float left, float top, float right, float bottom, Paint paint, int saveFlags) {
-        final int result = peer.saveLayer(left, top, right, bottom, paint, saveFlags);
-        if (debug) {
-            Log.d(tag, "saveLayer(" + left + "," + top + "," + right + "," + bottom + "), " + paint + ", " + saveFlags + "):" + result);
-        }
+        int result = super.saveLayer(left, top, right, bottom, paint, saveFlags);
+        recordOp(ID_SAVE_LAYER_float_float_float_float_Paint_int, left, top, right, bottom, paint, saveFlags);
         return result;
     }
 
@@ -219,14 +194,12 @@ public class ExCanvas extends Canvas {
      *                  (in local coordinates)
      * @param alpha     The alpha to apply to the offscreen when when it is drawn during restore()
      * @param saveFlags see _SAVE_FLAG constants
-     * @return          value to pass to restoreToCount() to balance this call
+     * @return value to pass to restoreToCount() to balance this call
      */
     @Override
     public int saveLayerAlpha(RectF bounds, int alpha, int saveFlags) {
-        final int result = peer.saveLayerAlpha(bounds, alpha, saveFlags);
-        if (debug) {
-            Log.d(tag, "saveLayerAlpha(" + bounds + "," + alpha + "," + saveFlags + "):" + result);
-        }
+        int result = super.saveLayerAlpha(bounds, alpha, saveFlags);
+        recordOp(ID_SAVE_LAYER_ALPHA_RectF_int_int, bounds, alpha, saveFlags);
         return result;
     }
 
@@ -235,10 +208,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha, int saveFlags) {
-        final int result = peer.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
-        if (debug) {
-            Log.d(tag, "saveLayerAlpha(" + left + "," + top + "," + right + "," + bottom + "," + alpha + "," + saveFlags + "):" + result);
-        }
+        int result = super.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
+        recordOp(ID_SAVE_LAYER_ALPHA_float_float_float_float_int_int, left, top, right, bottom, alpha, saveFlags);
         return result;
     }
 
@@ -249,44 +220,27 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void restore() {
-        peer.restore();
-        if (debug) {
-            Log.d(tag, "restore()");
-        }
-    }
-
-    /**
-     * Returns the number of matrix/clip states on the Canvas' private stack.
-     * This will equal # save() calls - # restore() calls.
-     */
-    @Override
-    public int getSaveCount() {
-        final int result = peer.getSaveCount();
-        if (debug) {
-            Log.d(tag, "getSaveCount():" + result);
-        }
-        return result;
+        super.restore();
+        recordOp(ID_RESTORE);
     }
 
     /**
      * Efficient way to pop any calls to save() that happened after the save
      * count reached saveCount. It is an error for saveCount to be less than 1.
-     *
+     * <p/>
      * Example:
-     *    int count = canvas.save();
-     *    ... // more calls potentially to save()
-     *    canvas.restoreToCount(count);
-     *    // now the canvas is back in the same state it was before the initial
-     *    // call to save().
+     * int count = canvas.save();
+     * ... // more calls potentially to save()
+     * canvas.restoreToCount(count);
+     * // now the canvas is back in the same state it was before the initial
+     * // call to save().
      *
      * @param saveCount The save level to restore to.
      */
     @Override
     public void restoreToCount(int saveCount) {
-        peer.restoreToCount(saveCount);
-        if (debug) {
-            Log.d(tag, "restoreToCount(" + saveCount + ")");
-        }
+        super.restoreToCount(saveCount);
+        recordOp(ID_RESTORE_TO_COUNT_int, saveCount);
     }
 
     /**
@@ -297,10 +251,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void translate(float dx, float dy) {
-        peer.translate(dx, dy);
-        if (debug) {
-            Log.d(tag, "translate(" + dx + "," + dy + ")");
-        }
+        super.translate(dx, dy);
+        recordOp(ID_TRANSLATE_float_float, dx, dy);
     }
 
     /**
@@ -311,10 +263,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void scale(float sx, float sy) {
-        peer.scale(sx, sy);
-        if (debug) {
-            Log.d(tag, "scale(" + sx + "," + sy + ")");
-        }
+        super.scale(sx, sy);
+        recordOp(ID_SCALE_float_float, sx, sy);
     }
 
     /**
@@ -324,10 +274,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void rotate(float degrees) {
-        peer.rotate(degrees);
-        if (debug) {
-            Log.d(tag, "rotate(" + degrees + ")");
-        }
+        super.rotate(degrees);
+        recordOp(ID_ROTATE_float, degrees);
     }
 
     /**
@@ -338,10 +286,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void skew(float sx, float sy) {
-        peer.skew(sx, sy);
-        if (debug) {
-            Log.d(tag, "skew(" + sx + "," + sy + ")");
-        }
+        super.skew(sx, sy);
+        recordOp(ID_SKEW_float_float, sx, sy);
     }
 
     /**
@@ -351,60 +297,39 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void concat(Matrix matrix) {
-        peer.concat(matrix);
-        if (debug) {
-            Log.d(tag, "concat(" + matrix + ")");
-        }
+        super.concat(matrix);
+        recordOp(ID_CONCAT_Matrix, matrix);
     }
 
     /**
      * Completely replace the current matrix with the specified matrix. If the
      * matrix parameter is null, then the current matrix is reset to identity.
-     *
-     * <strong>Note:</strong> it is recommended to use {@link #concat(Matrix)},
+     * <p/>
+     * <strong>Note:</strong> it is recommended to use {@link #concat(android.graphics.Matrix)},
      * {@link #scale(float, float)}, {@link #translate(float, float)} and
      * {@link #rotate(float)} instead of this method.
      *
      * @param matrix The matrix to replace the current matrix with. If it is
      *               null, set the current matrix to identity.
-     *
-     * @see #concat(Matrix)
+     * @see #concat(android.graphics.Matrix)
      */
-    @Deprecated
     @Override
     public void setMatrix(Matrix matrix) {
-        peer.setMatrix(matrix);
-        if (debug) {
-            Log.d(tag, "setMatrix(" + matrix + ")");
-        }
-    }
-
-    /**
-     * Return, in ctm, the current transformation matrix. This does not alter
-     * the matrix in the canvas, but just returns a copy of it.
-     */
-    @Deprecated
-    @Override
-    public void getMatrix(Matrix ctm) {
-        peer.getMatrix(ctm);
-        if (debug) {
-            Log.d(tag, "getMatrix(" + ctm + ")");
-        }
+        super.setMatrix(matrix);
+        recordOp(ID_SET_MATRIX_Matrix, matrix);
     }
 
     /**
      * Modify the current clip with the specified rectangle.
      *
      * @param rect The rect to intersect with the current clip
-     * @param op How the clip is modified
+     * @param op   How the clip is modified
      * @return true if the resulting clip is non-empty
      */
     @Override
     public boolean clipRect(RectF rect, Region.Op op) {
-        final boolean result = peer.clipRect(rect, op);
-        if (debug) {
-            Log.d(tag, "clipRect(" + rect + "," + op + "):" + result);
-        }
+        boolean result = super.clipRect(rect, op);
+        recordOp(ID_CLIP_RECT_RectF_Op, rect, op);
         return result;
     }
 
@@ -413,15 +338,13 @@ public class ExCanvas extends Canvas {
      * expressed in local coordinates.
      *
      * @param rect The rectangle to intersect with the current clip.
-     * @param op How the clip is modified
+     * @param op   How the clip is modified
      * @return true if the resulting clip is non-empty
      */
     @Override
     public boolean clipRect(Rect rect, Region.Op op) {
-        final boolean result = peer.clipRect(rect, op);
-        if (debug) {
-            Log.d(tag, "clipRect(" + rect + "," + op + "):" + result);
-        }
+        boolean result = super.clipRect(rect, op);
+        recordOp(ID_CLIP_RECT_Rect_Op, rect, op);
         return result;
     }
 
@@ -434,10 +357,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(RectF rect) {
-        final boolean result = peer.clipRect(rect);
-        if (debug) {
-            Log.d(tag, "clipRect(" + rect + "):" + result);
-        }
+        boolean result = super.clipRect(rect);
+        recordOp(ID_CLIP_RECT_RectF, rect);
         return result;
     }
 
@@ -450,10 +371,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(Rect rect) {
-        final boolean result = peer.clipRect(rect);
-        if (debug) {
-            Log.d(tag, "clipRect(" + rect + "):" + result);
-        }
+        boolean result = super.clipRect(rect);
+        recordOp(ID_CLIP_RECT_Rect, rect);
         return result;
     }
 
@@ -470,14 +389,12 @@ public class ExCanvas extends Canvas {
      * @param bottom The bottom of the rectangle to intersect with the current
      *               clip
      * @param op     How the clip is modified
-     * @return       true if the resulting clip is non-empty
+     * @return true if the resulting clip is non-empty
      */
     @Override
     public boolean clipRect(float left, float top, float right, float bottom, Region.Op op) {
-        final boolean result = peer.clipRect(left, top, right, bottom, op);
-        if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "," + op + "):" + result);
-        }
+        boolean result = super.clipRect(left, top, right, bottom, op);
+        recordOp(ID_CLIP_RECT_float_float_float_float_Op, left, top, right, bottom, op);
         return result;
     }
 
@@ -492,14 +409,12 @@ public class ExCanvas extends Canvas {
      *               current clip
      * @param bottom The bottom of the rectangle to intersect with the current
      *               clip
-     * @return       true if the resulting clip is non-empty
+     * @return true if the resulting clip is non-empty
      */
     @Override
     public boolean clipRect(float left, float top, float right, float bottom) {
-        final boolean result = peer.clipRect(left, top, right, bottom);
-        if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
-        }
+        boolean result = super.clipRect(left, top, right, bottom);
+        recordOp(ID_CLIP_RECT_float_float_float_float, left, top, right, bottom);
         return result;
     }
 
@@ -514,14 +429,12 @@ public class ExCanvas extends Canvas {
      *               current clip
      * @param bottom The bottom of the rectangle to intersect with the current
      *               clip
-     * @return       true if the resulting clip is non-empty
+     * @return true if the resulting clip is non-empty
      */
     @Override
     public boolean clipRect(int left, int top, int right, int bottom) {
-        final boolean result = peer.clipRect(left, top, right, bottom);
-        if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
-        }
+        boolean result = super.clipRect(left, top, right, bottom);
+        recordOp(ID_CLIP_RECT_int_int_int_int, left, top, right, bottom);
         return result;
     }
 
@@ -530,14 +443,12 @@ public class ExCanvas extends Canvas {
      *
      * @param path The path to operate on the current clip
      * @param op   How the clip is modified
-     * @return     true if the resulting is non-empty
+     * @return true if the resulting is non-empty
      */
     @Override
     public boolean clipPath(Path path, Region.Op op) {
-        final boolean result = peer.clipPath(path, op);
-        if (debug) {
-            Log.d(tag, "clipPath(" + path + "," + op + "):" + result);
-        }
+        boolean result = super.clipPath(path, op);
+        recordOp(ID_CLIP_PATH_Path_Op, path, op);
         return result;
     }
 
@@ -545,14 +456,12 @@ public class ExCanvas extends Canvas {
      * Intersect the current clip with the specified path.
      *
      * @param path The path to intersect with the current clip
-     * @return     true if the resulting is non-empty
+     * @return true if the resulting is non-empty
      */
     @Override
     public boolean clipPath(Path path) {
-        final boolean result = peer.clipPath(path);
-        if (debug) {
-            Log.d(tag, "clipPath(" + path + "):" + result);
-        }
+        boolean result = super.clipPath(path);
+        recordOp(ID_CLIP_PATH_Path, path);
         return result;
     }
 
@@ -564,15 +473,13 @@ public class ExCanvas extends Canvas {
      * transformation is performed.
      *
      * @param region The region to operate on the current clip, based on op
-     * @param op How the clip is modified
+     * @param op     How the clip is modified
      * @return true if the resulting is non-empty
      */
     @Override
     public boolean clipRegion(Region region, Region.Op op) {
-        final boolean result = peer.clipRegion(region, op);
-        if (debug) {
-            Log.d(tag, "clipRegion(" + region + "," + op + "):" + result);
-        }
+        boolean result = super.clipRegion(region, op);
+        recordOp(ID_CLIP_REGION_Region_Op, region, op);
         return result;
     }
 
@@ -588,118 +495,15 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRegion(Region region) {
-        final boolean result = peer.clipRegion(region);
-        if (debug) {
-            Log.d(tag, "clipRegion(" + region + "):" + result);
-        }
-        return result;
-    }
-
-    @Override
-    public DrawFilter getDrawFilter() {
-        final DrawFilter result = peer.getDrawFilter();
-        if (debug) {
-            Log.d(tag, "getDrawFilter():" + result);
-        }
+        boolean result = super.clipRegion(region);
+        recordOp(ID_CLIP_REGION_Region, region);
         return result;
     }
 
     @Override
     public void setDrawFilter(DrawFilter filter) {
-        peer.setDrawFilter(filter);
-        if (debug) {
-            Log.d(tag, "setDrawFilter(" + filter + ")");
-        }
-    }
-
-    /**
-     * Return true if the specified rectangle, after being transformed by the
-     * current matrix, would lie completely outside of the current clip. Call
-     * this to check if an area you intend to draw into is clipped out (and
-     * therefore you can skip making the draw calls).
-     *
-     * @param rect  the rect to compare with the current clip
-     * @param type  specifies how to treat the edges (BW or antialiased)
-     * @return      true if the rect (transformed by the canvas' matrix)
-     *              does not intersect with the canvas' clip
-     */
-    @Override
-    public boolean quickReject(RectF rect, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(rect, type);
-        if (debug) {
-            Log.d(tag, "quickReject(" + rect + "," + type + "):" + result);
-        }
-        return result;
-    }
-
-    /**
-     * Return true if the specified path, after being transformed by the
-     * current matrix, would lie completely outside of the current clip. Call
-     * this to check if an area you intend to draw into is clipped out (and
-     * therefore you can skip making the draw calls). Note: for speed it may
-     * return false even if the path itself might not intersect the clip
-     * (i.e. the bounds of the path intersects, but the path does not).
-     *
-     * @param path        The path to compare with the current clip
-     * @param type        true if the path should be considered antialiased,
-     *                    since that means it may
-     *                    affect a larger area (more pixels) than
-     *                    non-antialiased.
-     * @return            true if the path (transformed by the canvas' matrix)
-     *                    does not intersect with the canvas' clip
-     */
-    @Override
-    public boolean quickReject(Path path, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(path, type);
-        if (debug) {
-            Log.d(tag, "quickReject(" + path + "," + type + "):" + result);
-        }
-        return result;
-    }
-
-    /**
-     * Return true if the specified rectangle, after being transformed by the
-     * current matrix, would lie completely outside of the current clip. Call
-     * this to check if an area you intend to draw into is clipped out (and
-     * therefore you can skip making the draw calls).
-     *
-     * @param left        The left side of the rectangle to compare with the
-     *                    current clip
-     * @param top         The top of the rectangle to compare with the current
-     *                    clip
-     * @param right       The right side of the rectangle to compare with the
-     *                    current clip
-     * @param bottom      The bottom of the rectangle to compare with the
-     *                    current clip
-     * @param type        true if the rect should be considered antialiased,
-     *                    since that means it may affect a larger area (more
-     *                    pixels) than non-antialiased.
-     * @return            true if the rect (transformed by the canvas' matrix)
-     *                    does not intersect with the canvas' clip
-     */
-    @Override
-    public boolean quickReject(float left, float top, float right, float bottom, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(left, top, right, bottom, type);
-        if (debug) {
-            Log.d(tag, "quickReject(" + left + "," + top + "," + right + "," + bottom + "," + type + "):" + result);
-        }
-        return result;
-    }
-
-    /**
-     * Retrieve the clip bounds, returning true if they are non-empty.
-     *
-     * @param bounds Return the clip bounds here. If it is null, ignore it but
-     *               still return true if the current clip is non-empty.
-     * @return true if the current clip is non-empty.
-     */
-    @Override
-    public boolean getClipBounds(Rect bounds) {
-        final boolean result = peer.getClipBounds(bounds);
-        if (debug) {
-            Log.d(tag, "getClipBounds(" + bounds + ")");
-        }
-        return result;
+        super.setDrawFilter(filter);
+        recordOp(ID_SET_DRAW_FILTER_DrawFilter, filter);
     }
 
     /**
@@ -712,10 +516,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRGB(int r, int g, int b) {
-        peer.drawRGB(r, g, b);
-        if (debug) {
-            Log.d(tag, "drawRGB(" + r + "," + g + "," + b + ")");
-        }
+        super.drawRGB(r, g, b);
+        recordOp(ID_DRAW_RGB_int_int_int, r, g, b);
     }
 
     /**
@@ -729,10 +531,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawARGB(int a, int r, int g, int b) {
-        peer.drawARGB(a, r, g, b);
-        if (debug) {
-            Log.d(tag, "drawARGB(" + a + "," + r + "," + g + "," + b + ")");
-        }
+        super.drawARGB(a, r, g, b);
+        recordOp(ID_DRAW_ARGB_int_int_int_int, a, r, g, b);
     }
 
     /**
@@ -743,10 +543,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawColor(int color) {
-        peer.drawColor(color);
-        if (debug) {
-            Log.d(tag, "drawColor(" + color + ")");
-        }
+        super.drawColor(color);
+        recordOp(ID_DRAW_COLOR_int, color);
     }
 
     /**
@@ -758,10 +556,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawColor(int color, PorterDuff.Mode mode) {
-        peer.drawColor(color, mode);
-        if (debug) {
-            Log.d(tag, "drawColor(" + color + "," + mode + ")");
-        }
+        super.drawColor(color, mode);
+        recordOp(ID_DRAW_COLOR_int_Mode, color, mode);
     }
 
     /**
@@ -773,10 +569,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPaint(Paint paint) {
-        peer.drawPaint(paint);
-        if (debug) {
-            Log.d(tag, "drawPaint(" + paint + ")");
-        }
+        super.drawPaint(paint);
+        recordOp(ID_DRAW_PAINT_Paint, paint);
     }
 
     /**
@@ -788,19 +582,17 @@ public class ExCanvas extends Canvas {
      * the paint's Cap type. The shape is a square, unless the cap type is
      * Round, in which case the shape is a circle.
      *
-     * @param pts      Array of points to draw [x0 y0 x1 y1 x2 y2 ...]
-     * @param offset   Number of values to skip before starting to draw.
-     * @param count    The number of values to process, after skipping offset
-     *                 of them. Since one point uses two values, the number of
-     *                 "points" that are drawn is really (count >> 1).
-     * @param paint    The paint used to draw the points
+     * @param pts    Array of points to draw [x0 y0 x1 y1 x2 y2 ...]
+     * @param offset Number of values to skip before starting to draw.
+     * @param count  The number of values to process, after skipping offset
+     *               of them. Since one point uses two values, the number of
+     *               "points" that are drawn is really (count >> 1).
+     * @param paint  The paint used to draw the points
      */
     @Override
     public void drawPoints(float[] pts, int offset, int count, Paint paint) {
-        peer.drawPoints(pts, offset, count, paint);
-        if (debug) {
-            Log.d(tag, "drawPoints(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint);
-        }
+        super.drawPoints(pts, offset, count, paint);
+        recordOp(ID_DRAW_POINTS_floats_int_int_Paint, pts, offset, count, paint);
     }
 
     /**
@@ -808,21 +600,17 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPoints(float[] pts, Paint paint) {
-        peer.drawPoints(pts, paint);
-        if (debug) {
-            Log.d(tag, "drawPoints(" + Arrays.toString(pts) + "," + paint + ")");
-        }
+        super.drawPoints(pts, paint);
+        recordOp(ID_DRAW_POINTS_floats_Paint, pts, paint);
     }
 
     /**
      * Helper for drawPoints() for drawing a single point.
      */
     @Override
-    public void drawPoint(float v, float v2, Paint paint) {
-        peer.drawPoint(v, v2, paint);
-        if (debug) {
-            Log.d(tag, "drawPoint(" + v + "," + v2 + "," + paint);
-        }
+    public void drawPoint(float x, float y, Paint paint) {
+        super.drawPoint(x, y, paint);
+        recordOp(ID_DRAW_POINT_float_float_Paint, x, y, paint);
     }
 
     /**
@@ -836,10 +624,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawLine(float startX, float startY, float stopX, float stopY, Paint paint) {
-        peer.drawLine(startX, startY, stopX, stopY, paint);
-        if (debug) {
-            Log.d(tag, "drawLine(" + startX + "," + startY + "," + stopX + "," + stopY + "," + paint + ")");
-        }
+        super.drawLine(startX, startY, stopX, stopY, paint);
+        recordOp(ID_DRAW_LINE_float_float_float_float_Paint, startX, startY, stopX,  stopY, paint);
     }
 
     /**
@@ -849,28 +635,24 @@ public class ExCanvas extends Canvas {
      * drawLine(pts[0], pts[1], pts[2], pts[3]) followed by
      * drawLine(pts[4], pts[5], pts[6], pts[7]) and so on.
      *
-     * @param pts      Array of points to draw [x0 y0 x1 y1 x2 y2 ...]
-     * @param offset   Number of values in the array to skip before drawing.
-     * @param count    The number of values in the array to process, after
-     *                 skipping "offset" of them. Since each line uses 4 values,
-     *                 the number of "lines" that are drawn is really
-     *                 (count >> 2).
-     * @param paint    The paint used to draw the points
+     * @param pts    Array of points to draw [x0 y0 x1 y1 x2 y2 ...]
+     * @param offset Number of values in the array to skip before drawing.
+     * @param count  The number of values in the array to process, after
+     *               skipping "offset" of them. Since each line uses 4 values,
+     *               the number of "lines" that are drawn is really
+     *               (count >> 2).
+     * @param paint  The paint used to draw the points
      */
     @Override
     public void drawLines(float[] pts, int offset, int count, Paint paint) {
-        peer.drawLines(pts, offset, count, paint);
-        if (debug) {
-            Log.d(tag, "drawLines(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint + ")");
-        }
+        super.drawLines(pts, offset, count, paint);
+        recordOp(ID_DRAW_LINES_floats_int_int_Paint, pts, offset, count, paint);
     }
 
     @Override
     public void drawLines(float[] pts, Paint paint) {
-        peer.drawLines(pts, paint);
-        if (debug) {
-            Log.d(tag, "drawLines(" + Arrays.toString(pts) + "," + paint + ")");
-        }
+        super.drawLines(pts, paint);
+        recordOp(ID_DRAW_LINES_floats_Paint, pts, paint);
     }
 
     /**
@@ -882,26 +664,21 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRect(RectF rect, Paint paint) {
-        peer.drawRect(rect, paint);
-        if (debug) {
-            Log.d(tag, "drawRect(" + rect + "," + paint + ")");
-        }
+        super.drawRect(rect, paint);
+        recordOp(ID_DRAW_RECT_RectF_Paint, rect, paint);
     }
 
     /**
      * Draw the specified Rect using the specified Paint. The rectangle
      * will be filled or framed based on the Style in the paint.
      *
-     * @param r        The rectangle to be drawn.
-     * @param paint    The paint used to draw the rectangle
+     * @param r     The rectangle to be drawn.
+     * @param paint The paint used to draw the rectangle
      */
     @Override
     public void drawRect(Rect r, Paint paint) {
-        peer.drawRect(r, paint);
-        if (debug) {
-            Log.d(tag, "drawRect(" + r + "," + paint + ")");
-        }
-
+        super.drawRect(r, paint);
+        recordOp(ID_DRAW_RECT_Rect_Paint, r, paint);
     }
 
     /**
@@ -916,10 +693,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRect(float left, float top, float right, float bottom, Paint paint) {
-        peer.drawRect(left, top, right, bottom, paint);
-        if (debug) {
-            Log.d(tag, "drawRect(" + left + "," + top + "," + right + "," + bottom + "," + paint + ")");
-        }
+        super.drawRect(left, top, right, bottom, paint);
+        recordOp(ID_DRAW_RECT_float_float_float_float_Paint, left, top, right, right, bottom, paint);
     }
 
     /**
@@ -930,10 +705,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawOval(RectF oval, Paint paint) {
-        peer.drawOval(oval, paint);
-        if (debug) {
-            Log.d(tag, "drawOval(" + oval + "," + paint + ")");
-        }
+        super.drawOval(oval, paint);
+        recordOp(ID_DRAW_OVAL_RectF_Paint, oval, paint);
     }
 
     /**
@@ -948,24 +721,22 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawCircle(float cx, float cy, float radius, Paint paint) {
-        peer.drawCircle(cx, cy, radius, paint);
-        if (debug) {
-            Log.d(tag, "drawCircle(" + cx + "," + cy + "," + radius + "," + paint + ")");
-        }
+        super.drawCircle(cx, cy, radius, paint);
+        recordOp(ID_DRAW_CIRCLE_float_float_float_Paint, cx, cy, radius, paint);
     }
 
     /**
      * <p>Draw the specified arc, which will be scaled to fit inside the
      * specified oval.</p>
-     *
+     * <p/>
      * <p>If the start angle is negative or >= 360, the start angle is treated
      * as start angle modulo 360.</p>
-     *
+     * <p/>
      * <p>If the sweep angle is >= 360, then the oval is drawn
      * completely. Note that this differs slightly from SkPath::arcTo, which
      * treats the sweep angle modulo 360. If the sweep angle is negative,
      * the sweep angle is treated as sweep angle modulo 360</p>
-     *
+     * <p/>
      * <p>The arc is drawn clockwise. An angle of 0 degrees correspond to the
      * geometric angle of 0 degrees (3 o'clock on a watch.)</p>
      *
@@ -973,15 +744,13 @@ public class ExCanvas extends Canvas {
      *                   of the arc
      * @param startAngle Starting angle (in degrees) where the arc begins
      * @param sweepAngle Sweep angle (in degrees) measured clockwise
-     * @param useCenter If true, include the center of the oval in the arc, and close it if it is being stroked. This will draw a wedge
+     * @param useCenter  If true, include the center of the oval in the arc, and close it if it is being stroked. This will draw a wedge
      * @param paint      The paint used to draw the arc
      */
     @Override
     public void drawArc(RectF oval, float startAngle, float sweepAngle, boolean useCenter, Paint paint) {
-        peer.drawArc(oval, startAngle, sweepAngle, useCenter, paint);
-        if (debug) {
-            Log.d(tag, "drawArc(" + oval + "," + startAngle + "," + sweepAngle + "," + useCenter + "," + paint + ")");
-        }
+        super.drawArc(oval, startAngle, sweepAngle, useCenter, paint);
+        recordOp(ID_DRAW_ARC_RectF_float_float_boolean_Paint, oval, startAngle, sweepAngle, useCenter, paint);
     }
 
     /**
@@ -995,10 +764,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRoundRect(RectF rect, float rx, float ry, Paint paint) {
-        peer.drawRoundRect(rect, rx, ry, paint);
-        if (debug) {
-            Log.d(tag, "drawRoundRect(" + rect + "," + rx + "," + ry + "," + paint + ")");
-        }
+        super.drawRoundRect(rect, rx, ry, paint);
+        recordOp(ID_DRAW_ROUND_RECT_RectF_float_float_Paint, rx, ry, paint);
     }
 
     /**
@@ -1010,22 +777,20 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPath(Path path, Paint paint) {
-        peer.drawPath(path, paint);
-        if (debug) {
-            Log.d(tag, "drawPath(" + path + "," + paint + ")");
-        }
+        super.drawPath(path, paint);
+        recordOp(ID_DRAW_PATH_Path_Paint, path, paint);
     }
 
     /**
      * Draw the specified bitmap, with its top/left corner at (x,y), using
      * the specified paint, transformed by the current matrix.
-     *
+     * <p/>
      * <p>Note: if the paint contains a maskfilter that generates a mask which
      * extends beyond the bitmap's original width/height (e.g. BlurMaskFilter),
      * then the bitmap will be drawn as if it were in a Shader with CLAMP mode.
      * Thus the color outside of the original width/height will be the edge
      * color replicated.
-     *
+     * <p/>
      * <p>If the bitmap and canvas have different densities, this function
      * will take care of automatically scaling the bitmap to draw at the
      * same density as the canvas.
@@ -1037,23 +802,21 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, float left, float top, Paint paint) {
-        peer.drawBitmap(bitmap, left, top, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + left + "," + top + "," + paint + ")");
-        }
+        super.drawBitmap(bitmap, left, top, paint);
+        recordOp(ID_DRAW_BITMAP_Bitmap_float_float_Paint, bitmap, left, top, paint);
     }
 
     /**
      * Draw the specified bitmap, scaling/translating automatically to fill
      * the destination rectangle. If the source rectangle is not null, it
      * specifies the subset of the bitmap to draw.
-     *
+     * <p/>
      * <p>Note: if the paint contains a maskfilter that generates a mask which
      * extends beyond the bitmap's original width/height (e.g. BlurMaskFilter),
      * then the bitmap will be drawn as if it were in a Shader with CLAMP mode.
      * Thus the color outside of the original width/height will be the edge
      * color replicated.
-     *
+     * <p/>
      * <p>This function <em>ignores the density associated with the bitmap</em>.
      * This is because the source and destination rectangle coordinate
      * spaces are in their respective densities, so must already have the
@@ -1067,23 +830,21 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Rect src, RectF dst, Paint paint) {
-        peer.drawBitmap(bitmap, src, dst, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
-        }
+        super.drawBitmap(bitmap, src, dst, paint);
+        recordOp(ID_DRAW_BITMAP_Bitmap_Rect_RectF_Paint, bitmap, src, dst, paint);
     }
 
     /**
      * Draw the specified bitmap, scaling/translating automatically to fill
      * the destination rectangle. If the source rectangle is not null, it
      * specifies the subset of the bitmap to draw.
-     *
+     * <p/>
      * <p>Note: if the paint contains a maskfilter that generates a mask which
      * extends beyond the bitmap's original width/height (e.g. BlurMaskFilter),
      * then the bitmap will be drawn as if it were in a Shader with CLAMP mode.
      * Thus the color outside of the original width/height will be the edge
      * color replicated.
-     *
+     * <p/>
      * <p>This function <em>ignores the density associated with the bitmap</em>.
      * This is because the source and destination rectangle coordinate
      * spaces are in their respective densities, so must already have the
@@ -1097,10 +858,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint) {
-        peer.drawBitmap(bitmap, src, dst, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
-        }
+        super.drawBitmap(bitmap, src, dst, paint);
+        recordOp(ID_DRAW_BITMAP_Bitmap_Rect_Rect_Paint, bitmap, src, dst, paint);
     }
 
     /**
@@ -1109,35 +868,32 @@ public class ExCanvas extends Canvas {
      * drawing it, but this method avoids explicitly creating a bitmap object
      * which can be more efficient if the colors are changing often.
      *
-     * @param colors Array of colors representing the pixels of the bitmap
-     * @param offset Offset into the array of colors for the first pixel
-     * @param stride The number of colors in the array between rows (must be
-     *               >= width or <= -width).
-     * @param x The X coordinate for where to draw the bitmap
-     * @param y The Y coordinate for where to draw the bitmap
-     * @param width The width of the bitmap
-     * @param height The height of the bitmap
+     * @param colors   Array of colors representing the pixels of the bitmap
+     * @param offset   Offset into the array of colors for the first pixel
+     * @param stride   The number of colors in the array between rows (must be
+     *                 >= width or <= -width).
+     * @param x        The X coordinate for where to draw the bitmap
+     * @param y        The Y coordinate for where to draw the bitmap
+     * @param width    The width of the bitmap
+     * @param height   The height of the bitmap
      * @param hasAlpha True if the alpha channel of the colors contains valid
      *                 values. If false, the alpha byte is ignored (assumed to
      *                 be 0xFF for every pixel).
-     * @param paint  May be null. The paint used to draw the bitmap
+     * @param paint    May be null. The paint used to draw the bitmap
      */
     @Override
     public void drawBitmap(int[] colors, int offset, int stride, float x, float y, int width, int height, boolean hasAlpha, Paint paint) {
-        peer.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
-        }
+        super.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
+        recordOp(ID_DRAW_BITMAP_ints_int_int_float_float_int_int_boolean_Paint, colors, offset, stride, x, y, width, height, hasAlpha, paint);
     }
 
-    /** Legacy version of drawBitmap(int[] colors, ...) that took ints for x,y
+    /**
+     * Legacy version of drawBitmap(int[] colors, ...) that took ints for x,y
      */
     @Override
     public void drawBitmap(int[] colors, int offset, int stride, int x, int y, int width, int height, boolean hasAlpha, Paint paint) {
-        peer.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
-        }
+        super.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
+        recordOp(ID_DRAW_BITMAP_ints_int_int_int_int_int_int_boolean_Paint);
     }
 
     /**
@@ -1149,10 +905,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Matrix matrix, Paint paint) {
-        peer.drawBitmap(bitmap, matrix, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + matrix + "," + paint + ")");
-        }
+        super.drawBitmap(bitmap, matrix, paint);
+        recordOp(ID_DRAW_BITMAP_Bitmap_Matrix_Paint, bitmap, matrix, paint);
     }
 
     /**
@@ -1163,30 +917,28 @@ public class ExCanvas extends Canvas {
      * top of the bitmap from left to right. A more general version of this
      * methid is drawVertices().
      *
-     * @param bitmap The bitmap to draw using the mesh
-     * @param meshWidth The number of columns in the mesh. Nothing is drawn if
-     *                  this is 0
-     * @param meshHeight The number of rows in the mesh. Nothing is drawn if
-     *                   this is 0
-     * @param verts Array of x,y pairs, specifying where the mesh should be
-     *              drawn. There must be at least
-     *              (meshWidth+1) * (meshHeight+1) * 2 + meshOffset values
-     *              in the array
-     * @param vertOffset Number of verts elements to skip before drawing
-     * @param colors May be null. Specifies a color at each vertex, which is
-     *               interpolated across the cell, and whose values are
-     *               multiplied by the corresponding bitmap colors. If not null,
-     *               there must be at least (meshWidth+1) * (meshHeight+1) +
-     *               colorOffset values in the array.
+     * @param bitmap      The bitmap to draw using the mesh
+     * @param meshWidth   The number of columns in the mesh. Nothing is drawn if
+     *                    this is 0
+     * @param meshHeight  The number of rows in the mesh. Nothing is drawn if
+     *                    this is 0
+     * @param verts       Array of x,y pairs, specifying where the mesh should be
+     *                    drawn. There must be at least
+     *                    (meshWidth+1) * (meshHeight+1) * 2 + meshOffset values
+     *                    in the array
+     * @param vertOffset  Number of verts elements to skip before drawing
+     * @param colors      May be null. Specifies a color at each vertex, which is
+     *                    interpolated across the cell, and whose values are
+     *                    multiplied by the corresponding bitmap colors. If not null,
+     *                    there must be at least (meshWidth+1) * (meshHeight+1) +
+     *                    colorOffset values in the array.
      * @param colorOffset Number of color elements to skip before drawing
-     * @param paint  May be null. The paint used to draw the bitmap
+     * @param paint       May be null. The paint used to draw the bitmap
      */
     @Override
     public void drawBitmapMesh(Bitmap bitmap, int meshWidth, int meshHeight, float[] verts, int vertOffset, int[] colors, int colorOffset, Paint paint) {
-        peer.drawBitmapMesh(bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint);
-        if (debug) {
-            Log.d(tag, "drawBitmapMesh(" + bitmap + "," + meshWidth + "," + meshHeight + "," + Arrays.toString(verts) + "," + vertOffset + "," + Arrays.toString(colors) + "," + colorOffset + "," + paint + ")");
-        }
+        super.drawBitmapMesh(bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint);
+        recordOp(ID_DRAW_BITMAP_MESH_Bitmap_int_int_floats_int_ints_int_Paint, bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint);
     }
 
     /**
@@ -1202,29 +954,27 @@ public class ExCanvas extends Canvas {
      * is optional, but if it is present, then it is used to specify the index
      * of each triangle, rather than just walking through the arrays in order.
      *
-     * @param mode How to interpret the array of vertices
+     * @param mode        How to interpret the array of vertices
      * @param vertexCount The number of values in the vertices array (and
-     *      corresponding texs and colors arrays if non-null). Each logical
-     *      vertex is two values (x, y), vertexCount must be a multiple of 2.
-     * @param verts Array of vertices for the mesh
-     * @param vertOffset Number of values in the verts to skip before drawing.
-     * @param texs May be null. If not null, specifies the coordinates to sample
-     *      into the current shader (e.g. bitmap tile or gradient)
-     * @param texOffset Number of values in texs to skip before drawing.
-     * @param colors May be null. If not null, specifies a color for each
-     *      vertex, to be interpolated across the triangle.
+     *                    corresponding texs and colors arrays if non-null). Each logical
+     *                    vertex is two values (x, y), vertexCount must be a multiple of 2.
+     * @param verts       Array of vertices for the mesh
+     * @param vertOffset  Number of values in the verts to skip before drawing.
+     * @param texs        May be null. If not null, specifies the coordinates to sample
+     *                    into the current shader (e.g. bitmap tile or gradient)
+     * @param texOffset   Number of values in texs to skip before drawing.
+     * @param colors      May be null. If not null, specifies a color for each
+     *                    vertex, to be interpolated across the triangle.
      * @param colorOffset Number of values in colors to skip before drawing.
-     * @param indices If not null, array of indices to reference into the
-     *      vertex (texs, colors) array.
-     * @param indexCount number of entries in the indices array (if not null).
-     * @param paint Specifies the shader to use if the texs array is non-null.
+     * @param indices     If not null, array of indices to reference into the
+     *                    vertex (texs, colors) array.
+     * @param indexCount  number of entries in the indices array (if not null).
+     * @param paint       Specifies the shader to use if the texs array is non-null.
      */
     @Override
-    public void drawVertices(Canvas.VertexMode mode, int vertexCount, float[] verts, int vertOffset, float[] texs, int texOffset, int[] colors, int colorOffset, short[] indices, int indexOffset, int indexCount, Paint paint) {
-        peer.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint);
-        if(debug) {
-            Log.d(tag, "drawVertices("+mode+","+vertexCount+","+Arrays.toString(verts)+","+vertOffset+","+Arrays.toString(texs)+","+texOffset+","+Arrays.toString(colors)+","+colorOffset+","+Arrays.toString(indices)+","+indexOffset+","+indexCount+","+paint+")");
-        }
+    public void drawVertices(VertexMode mode, int vertexCount, float[] verts, int vertOffset, float[] texs, int texOffset, int[] colors, int colorOffset, short[] indices, int indexOffset, int indexCount, Paint paint) {
+        super.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint);
+        recordOp(ID_DRAW_VERTICES_VertexMode_int_floats_int_floats_int_ints_int_shorts_int_int_Paint, mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint);
     }
 
     /**
@@ -1238,10 +988,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(char[] text, int index, int count, float x, float y, Paint paint) {
-        peer.drawText(text, index, count, x, y, paint);
-        if(debug) {
-            Log.d(tag, "drawText("+Arrays.toString(text)+","+index+","+count+","+x+","+y+","+paint+")");
-        }
+        super.drawText(text, index, count, x, y, paint);
+        recordOp(ID_DRAW_TEXT_chars_int_int_float_float_Paint, text, index, count, x, y, paint);
     }
 
     /**
@@ -1255,10 +1003,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(String text, float x, float y, Paint paint) {
-        peer.drawText(text, x, y, paint);
-        if(debug) {
-            Log.d(tag, "drawText("+text+","+x+","+y+","+paint+")");
-        }
+        super.drawText(text, x, y, paint);
+        recordOp(ID_DRAW_TEXT_String_float_float_Paint, text, x, y, paint);
     }
 
     /**
@@ -1274,10 +1020,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(String text, int start, int end, float x, float y, Paint paint) {
-        peer.drawText(text, start, end, x, y, paint);
-        if(debug) {
-            Log.d(tag, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
-        }
+        super.drawText(text, start, end, x, y, paint);
+        recordOp(ID_DRAW_TEXT_String_int_int_float_float_Paint, text, start, end, x, y, paint);
     }
 
     /**
@@ -1285,49 +1029,44 @@ public class ExCanvas extends Canvas {
      * origin at (x,y), in the specified Paint. The origin is interpreted
      * based on the Align setting in the Paint.
      *
-     * @param text     The text to be drawn
-     * @param start    The index of the first character in text to draw
-     * @param end      (end - 1) is the index of the last character in text
-     *                 to draw
-     * @param x        The x-coordinate of origin for where to draw the text
-     * @param y        The y-coordinate of origin for where to draw the text
+     * @param text  The text to be drawn
+     * @param start The index of the first character in text to draw
+     * @param end   (end - 1) is the index of the last character in text
+     *              to draw
+     * @param x     The x-coordinate of origin for where to draw the text
+     * @param y     The y-coordinate of origin for where to draw the text
      * @param paint The paint used for the text (e.g. color, size, style)
      */
     @Override
     public void drawText(CharSequence text, int start, int end, float x, float y, Paint paint) {
-        peer.drawText(text, start, end, x, y, paint);
-        if(debug) {
-            Log.d(tag, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
-        }
+        super.drawText(text, start, end, x, y, paint);
+        recordOp(ID_DRAW_TEXT_CharSequence_int_int_float_float_Paint, text, start, end, x, y, paint);
     }
 
     /**
      * Draw the text in the array, with each character's origin specified by
      * the pos array.
-     *
+     * <p/>
      * This method does not support glyph composition and decomposition and
      * should therefore not be used to render complex scripts.
      *
-     * @param text     The text to be drawn
-     * @param index    The index of the first character to draw
-     * @param count    The number of characters to draw, starting from index.
-     * @param pos      Array of [x,y] positions, used to position each
-     *                 character
-     * @param paint    The paint used for the text (e.g. color, size, style)
+     * @param text  The text to be drawn
+     * @param index The index of the first character to draw
+     * @param count The number of characters to draw, starting from index.
+     * @param pos   Array of [x,y] positions, used to position each
+     *              character
+     * @param paint The paint used for the text (e.g. color, size, style)
      */
-    @Deprecated
     @Override
     public void drawPosText(char[] text, int index, int count, float[] pos, Paint paint) {
-        peer.drawPosText(text, index, count, pos, paint);
-        if(debug) {
-            Log.d(tag, "drawPosText("+Arrays.toString(text)+","+index+","+count+","+Arrays.toString(pos)+","+paint+")");
-        }
+        super.drawPosText(text, index, count, pos, paint);
+        recordOp(ID_DRAW_POS_TEXT_chars_int_int_floats_Paint, text, index, count, pos, paint);
     }
 
     /**
      * Draw the text in the array, with each character's origin specified by
      * the pos array.
-     *
+     * <p/>
      * This method does not support glyph composition and decomposition and
      * should therefore not be used to render complex scripts.
      *
@@ -1335,13 +1074,11 @@ public class ExCanvas extends Canvas {
      * @param pos   Array of [x,y] positions, used to position each character
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    @Deprecated
     @Override
     public void drawPosText(String text, float[] pos, Paint paint) {
-        peer.drawPosText(text, pos, paint);
-        if(debug) {
-            Log.d(tag, "drawPosText("+text+","+Arrays.toString(pos)+","+paint+")");
-        }
+        super.drawPosText(text, pos, paint);
+        recordOp(ID_DRAW_POS_TEXT_String_floats_Paint, text, pos, paint);
+
     }
 
     /**
@@ -1349,20 +1086,18 @@ public class ExCanvas extends Canvas {
      * the specified path. The paint's Align setting determins where along the
      * path to start the text.
      *
-     * @param text     The text to be drawn
-     * @param path     The path the text should follow for its baseline
-     * @param hOffset  The distance along the path to add to the text's
-     *                 starting position
-     * @param vOffset  The distance above(-) or below(+) the path to position
-     *                 the text
-     * @param paint    The paint used for the text (e.g. color, size, style)
+     * @param text    The text to be drawn
+     * @param path    The path the text should follow for its baseline
+     * @param hOffset The distance along the path to add to the text's
+     *                starting position
+     * @param vOffset The distance above(-) or below(+) the path to position
+     *                the text
+     * @param paint   The paint used for the text (e.g. color, size, style)
      */
     @Override
     public void drawTextOnPath(char[] text, int index, int count, Path path, float hOffset, float vOffset, Paint paint) {
-        peer.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint);
-        if(debug) {
-            Log.d(tag, "drawTextOnPath("+Arrays.toString(text)+","+index+","+count+","+path+","+hOffset+","+vOffset+","+paint+")");
-        }
+        super.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint);
+        recordOp(ID_DRAW_TEXT_ON_PATH_chars_int_int_Path_float_float_Paint, text, index, count, path, hOffset, vOffset, paint);
     }
 
     /**
@@ -1370,20 +1105,18 @@ public class ExCanvas extends Canvas {
      * the specified path. The paint's Align setting determins where along the
      * path to start the text.
      *
-     * @param text     The text to be drawn
-     * @param path     The path the text should follow for its baseline
-     * @param hOffset  The distance along the path to add to the text's
-     *                 starting position
-     * @param vOffset  The distance above(-) or below(+) the path to position
-     *                 the text
-     * @param paint    The paint used for the text (e.g. color, size, style)
+     * @param text    The text to be drawn
+     * @param path    The path the text should follow for its baseline
+     * @param hOffset The distance along the path to add to the text's
+     *                starting position
+     * @param vOffset The distance above(-) or below(+) the path to position
+     *                the text
+     * @param paint   The paint used for the text (e.g. color, size, style)
      */
     @Override
     public void drawTextOnPath(String text, Path path, float hOffset, float vOffset, Paint paint) {
-        peer.drawTextOnPath(text, path, hOffset, vOffset, paint);
-        if(debug) {
-            Log.d(tag, "drawTextOnPath("+text+","+path+","+hOffset+","+vOffset+","+paint+")");
-        }
+        super.drawTextOnPath(text, path, hOffset, vOffset, paint);
+        recordOp(ID_DRAW_TEXT_ON_PATH_String_Path_float_float_Paint, text, path, hOffset, vOffset, paint);
     }
 
     /**
@@ -1391,14 +1124,12 @@ public class ExCanvas extends Canvas {
      * This differs from picture.draw(canvas), which does not perform any
      * save/restore.
      *
-     * @param picture  The picture to be drawn
+     * @param picture The picture to be drawn
      */
     @Override
     public void drawPicture(Picture picture) {
-        peer.drawPicture(picture);
-        if(debug) {
-            Log.d(tag, "drawPicture("+picture+")");
-        }
+        super.drawPicture(picture);
+        recordOp(ID_DRAW_PICTURE_Picture, picture);
     }
 
     /**
@@ -1406,10 +1137,8 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPicture(Picture picture, RectF dst) {
-        peer.drawPicture(picture, dst);
-        if(debug) {
-            Log.d(tag, "drawPicture("+picture+","+dst+")");
-        }
+        super.drawPicture(picture, dst);
+        recordOp(ID_DRAW_PICTURE_Picture_RectF, picture, dst);
     }
 
     /**
@@ -1417,9 +1146,22 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPicture(Picture picture, Rect dst) {
-        peer.drawPicture(picture, dst);
-        if(debug) {
-            Log.d(tag,"drawPicture("+picture+","+dst+")");
+        super.drawPicture(picture, dst);
+        recordOp(ID_DRAW_PICTURE_Picture_Rect, picture, dst);
+    }
+
+    public static ReplayableCanvas getReplayableCanvas(Canvas canvas) {
+        ReplayableCanvas result = null;
+        if (canvas instanceof ReplayableCanvas) {
+            result = (ReplayableCanvas) canvas;
+        } else {
+            result = new ReplayableCanvas(canvas);
         }
+        return result;
+    }
+
+    private void recordOp(int opId, Object... param) {
+        Instruction inst = new Instruction(opId, param);
+        opList.add(inst);
     }
 }
