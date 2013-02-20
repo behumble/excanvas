@@ -23,7 +23,7 @@ public class Instruction {
 
     private static String paramToString(Object param) {
         if(param==null) return "";  // do not print
-        if(param instanceof Object[]) return Arrays.toString((Object[]) param);
+        if(param instanceof Object[]) return Arrays.deepToString((Object[]) param);
         return param.toString();
     }
 }
