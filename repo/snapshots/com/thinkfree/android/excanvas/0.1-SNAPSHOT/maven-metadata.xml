@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.thinkfree.android</groupId>
+  <artifactId>excanvas</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20130221.064859</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20130221064859</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>0.1-20130221.064859-1</value>
+        <updated>20130221064859</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.1-20130221.064859-1</value>
+        <updated>20130221064859</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
