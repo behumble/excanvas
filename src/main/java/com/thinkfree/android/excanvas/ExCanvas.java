@@ -1,5 +1,20 @@
-package com.thinkfree.android.excanvas;
+/*
+ * Copyright 2013 Alan Goo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.thinkfree.android.excanvas;
 
 import android.graphics.*;
 import android.util.Log;
@@ -7,34 +22,21 @@ import android.util.Log;
 import java.util.Arrays;
 
 /**
- * Extended Canvas implemented in delegation.
- * use <code>ExCanvas.getExCanvas(Canvas)</code> to wrap a given Canvas object with ExCanvas instance.
- * the javadoc comments are copied from original <code>Canvas.java</code>
- * @author Alan Goo
+ * Wraps an existing <code>Canvas</code> and performs some transformation just like <code>FilterOutputStream</code>
+ * @author Alan Goo (accent@thinkfree.com)
  */
 public class ExCanvas extends Canvas {
     public static boolean debug = false;
 
-    public static ExCanvas getExCanvas(Canvas canvas) {
-        ExCanvas result = null;
-        if (canvas instanceof ExCanvas) {
-            result = (ExCanvas) canvas;
-        } else {
-            result = new ExCanvas(canvas);
-        }
-        return result;
+    private final Canvas dest;
+    private final String TAG = "ExCanvas";
+
+    protected ExCanvas(Canvas dest) {
+        this.dest = dest;
     }
 
-    private final Canvas peer;
-    private final String tag;
-
-    protected ExCanvas(Canvas peer) {
-        this.peer = peer;
-        tag = "ExCanvas:" + peer.getClass().getSimpleName();
-    }
-
-    public Canvas getPeer() {
-        return this.peer;
+    public Canvas getDestination() {
+        return this.dest;
     }
 
     /**
@@ -48,9 +50,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void setBitmap(Bitmap bitmap) {
-        peer.setBitmap(bitmap);
+        dest.setBitmap(bitmap);
         if (debug) {
-            Log.d(tag, "setBitmap(" + bitmap + ")");
+            Log.d(TAG, "setBitmap(" + bitmap + ")");
         }
     }
 
@@ -60,9 +62,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean isOpaque() {
-        final boolean result = peer.isOpaque();
+        final boolean result = dest.isOpaque();
         if (debug) {
-            Log.d(tag, "isOpaque():" + result);
+            Log.d(TAG, "isOpaque():" + result);
         }
         return result;
     }
@@ -72,9 +74,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int getWidth() {
-        final int result = peer.getWidth();
+        final int result = dest.getWidth();
         if (debug) {
-            Log.d(tag, "getWidth():" + result);
+            Log.d(TAG, "getWidth():" + result);
         }
         return result;
     }
@@ -84,9 +86,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int getHeight() {
-        final int result = peer.getHeight();
+        final int result = dest.getHeight();
         if (debug) {
-            Log.d(tag, "getHeight():" + result);
+            Log.d(TAG, "getHeight():" + result);
         }
         return result;
     }
@@ -104,9 +106,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int getDensity() {
-        final int result = peer.getDensity();
+        final int result = dest.getDensity();
         if (debug) {
-            Log.d(tag, "getDensity():" + result);
+            Log.d(TAG, "getDensity():" + result);
         }
         return result;
     }
@@ -125,9 +127,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void setDensity(int density) {
-        peer.setDensity(density);
+        dest.setDensity(density);
         if (debug) {
-            Log.d(tag, "setDensity(" + density + ")");
+            Log.d(TAG, "setDensity(" + density + ")");
         }
     }
 
@@ -142,9 +144,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int save() {
-        final int result = peer.save();
+        final int result = dest.save();
         if (debug) {
-            Log.d(tag, "save():" + result);
+            Log.d(TAG, "save():" + result);
         }
         return result;
     }
@@ -162,9 +164,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int save(int saveFlags) {
-        final int result = peer.save(saveFlags);
+        final int result = dest.save(saveFlags);
         if (debug) {
-            Log.d(tag, "save(" + saveFlags + "):" + result);
+            Log.d(TAG, "save(" + saveFlags + "):" + result);
         }
         return result;
     }
@@ -187,9 +189,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayer(RectF bounds, Paint paint, int saveFlags) {
-        final int result = peer.saveLayer(bounds, paint, saveFlags);
+        final int result = dest.saveLayer(bounds, paint, saveFlags);
         if (debug) {
-            Log.d(tag, "saveLayer(" + bounds + "," + paint + "," + saveFlags + "):" + result);
+            Log.d(TAG, "saveLayer(" + bounds + "," + paint + "," + saveFlags + "):" + result);
         }
         return result;
     }
@@ -199,9 +201,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayer(float left, float top, float right, float bottom, Paint paint, int saveFlags) {
-        final int result = peer.saveLayer(left, top, right, bottom, paint, saveFlags);
+        final int result = dest.saveLayer(left, top, right, bottom, paint, saveFlags);
         if (debug) {
-            Log.d(tag, "saveLayer(" + left + "," + top + "," + right + "," + bottom + "), " + paint + ", " + saveFlags + "):" + result);
+            Log.d(TAG, "saveLayer(" + left + "," + top + "," + right + "," + bottom + "), " + paint + ", " + saveFlags + "):" + result);
         }
         return result;
     }
@@ -223,9 +225,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayerAlpha(RectF bounds, int alpha, int saveFlags) {
-        final int result = peer.saveLayerAlpha(bounds, alpha, saveFlags);
+        final int result = dest.saveLayerAlpha(bounds, alpha, saveFlags);
         if (debug) {
-            Log.d(tag, "saveLayerAlpha(" + bounds + "," + alpha + "," + saveFlags + "):" + result);
+            Log.d(TAG, "saveLayerAlpha(" + bounds + "," + alpha + "," + saveFlags + "):" + result);
         }
         return result;
     }
@@ -235,9 +237,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int saveLayerAlpha(float left, float top, float right, float bottom, int alpha, int saveFlags) {
-        final int result = peer.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
+        final int result = dest.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags);
         if (debug) {
-            Log.d(tag, "saveLayerAlpha(" + left + "," + top + "," + right + "," + bottom + "," + alpha + "," + saveFlags + "):" + result);
+            Log.d(TAG, "saveLayerAlpha(" + left + "," + top + "," + right + "," + bottom + "," + alpha + "," + saveFlags + "):" + result);
         }
         return result;
     }
@@ -249,9 +251,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void restore() {
-        peer.restore();
+        dest.restore();
         if (debug) {
-            Log.d(tag, "restore()");
+            Log.d(TAG, "restore()");
         }
     }
 
@@ -261,9 +263,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public int getSaveCount() {
-        final int result = peer.getSaveCount();
+        final int result = dest.getSaveCount();
         if (debug) {
-            Log.d(tag, "getSaveCount():" + result);
+            Log.d(TAG, "getSaveCount():" + result);
         }
         return result;
     }
@@ -283,9 +285,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void restoreToCount(int saveCount) {
-        peer.restoreToCount(saveCount);
+        dest.restoreToCount(saveCount);
         if (debug) {
-            Log.d(tag, "restoreToCount(" + saveCount + ")");
+            Log.d(TAG, "restoreToCount(" + saveCount + ")");
         }
     }
 
@@ -297,9 +299,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void translate(float dx, float dy) {
-        peer.translate(dx, dy);
+        dest.translate(dx, dy);
         if (debug) {
-            Log.d(tag, "translate(" + dx + "," + dy + ")");
+            Log.d(TAG, "translate(" + dx + "," + dy + ")");
         }
     }
 
@@ -311,9 +313,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void scale(float sx, float sy) {
-        peer.scale(sx, sy);
+        dest.scale(sx, sy);
         if (debug) {
-            Log.d(tag, "scale(" + sx + "," + sy + ")");
+            Log.d(TAG, "scale(" + sx + "," + sy + ")");
         }
     }
 
@@ -324,9 +326,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void rotate(float degrees) {
-        peer.rotate(degrees);
+        dest.rotate(degrees);
         if (debug) {
-            Log.d(tag, "rotate(" + degrees + ")");
+            Log.d(TAG, "rotate(" + degrees + ")");
         }
     }
 
@@ -338,9 +340,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void skew(float sx, float sy) {
-        peer.skew(sx, sy);
+        dest.skew(sx, sy);
         if (debug) {
-            Log.d(tag, "skew(" + sx + "," + sy + ")");
+            Log.d(TAG, "skew(" + sx + "," + sy + ")");
         }
     }
 
@@ -351,9 +353,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void concat(Matrix matrix) {
-        peer.concat(matrix);
+        dest.concat(matrix);
         if (debug) {
-            Log.d(tag, "concat(" + matrix + ")");
+            Log.d(TAG, "concat(" + matrix + ")");
         }
     }
 
@@ -373,9 +375,9 @@ public class ExCanvas extends Canvas {
     @Deprecated
     @Override
     public void setMatrix(Matrix matrix) {
-        peer.setMatrix(matrix);
+        dest.setMatrix(matrix);
         if (debug) {
-            Log.d(tag, "setMatrix(" + matrix + ")");
+            Log.d(TAG, "setMatrix(" + matrix + ")");
         }
     }
 
@@ -386,9 +388,9 @@ public class ExCanvas extends Canvas {
     @Deprecated
     @Override
     public void getMatrix(Matrix ctm) {
-        peer.getMatrix(ctm);
+        dest.getMatrix(ctm);
         if (debug) {
-            Log.d(tag, "getMatrix(" + ctm + ")");
+            Log.d(TAG, "getMatrix(" + ctm + ")");
         }
     }
 
@@ -401,9 +403,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(RectF rect, Region.Op op) {
-        final boolean result = peer.clipRect(rect, op);
+        final boolean result = dest.clipRect(rect, op);
         if (debug) {
-            Log.d(tag, "clipRect(" + rect + "," + op + "):" + result);
+            Log.d(TAG, "clipRect(" + rect + "," + op + "):" + result);
         }
         return result;
     }
@@ -418,9 +420,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(Rect rect, Region.Op op) {
-        final boolean result = peer.clipRect(rect, op);
+        final boolean result = dest.clipRect(rect, op);
         if (debug) {
-            Log.d(tag, "clipRect(" + rect + "," + op + "):" + result);
+            Log.d(TAG, "clipRect(" + rect + "," + op + "):" + result);
         }
         return result;
     }
@@ -434,9 +436,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(RectF rect) {
-        final boolean result = peer.clipRect(rect);
+        final boolean result = dest.clipRect(rect);
         if (debug) {
-            Log.d(tag, "clipRect(" + rect + "):" + result);
+            Log.d(TAG, "clipRect(" + rect + "):" + result);
         }
         return result;
     }
@@ -450,9 +452,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(Rect rect) {
-        final boolean result = peer.clipRect(rect);
+        final boolean result = dest.clipRect(rect);
         if (debug) {
-            Log.d(tag, "clipRect(" + rect + "):" + result);
+            Log.d(TAG, "clipRect(" + rect + "):" + result);
         }
         return result;
     }
@@ -474,9 +476,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(float left, float top, float right, float bottom, Region.Op op) {
-        final boolean result = peer.clipRect(left, top, right, bottom, op);
+        final boolean result = dest.clipRect(left, top, right, bottom, op);
         if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "," + op + "):" + result);
+            Log.d(TAG, "clipRect(" + left + "," + top + "," + right + "," + bottom + "," + op + "):" + result);
         }
         return result;
     }
@@ -496,9 +498,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(float left, float top, float right, float bottom) {
-        final boolean result = peer.clipRect(left, top, right, bottom);
+        final boolean result = dest.clipRect(left, top, right, bottom);
         if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
+            Log.d(TAG, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
         }
         return result;
     }
@@ -518,9 +520,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRect(int left, int top, int right, int bottom) {
-        final boolean result = peer.clipRect(left, top, right, bottom);
+        final boolean result = dest.clipRect(left, top, right, bottom);
         if (debug) {
-            Log.d(tag, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
+            Log.d(TAG, "clipRect(" + left + "," + top + "," + right + "," + bottom + "):" + result);
         }
         return result;
     }
@@ -534,9 +536,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipPath(Path path, Region.Op op) {
-        final boolean result = peer.clipPath(path, op);
+        final boolean result = dest.clipPath(path, op);
         if (debug) {
-            Log.d(tag, "clipPath(" + path + "," + op + "):" + result);
+            Log.d(TAG, "clipPath(" + path + "," + op + "):" + result);
         }
         return result;
     }
@@ -549,9 +551,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipPath(Path path) {
-        final boolean result = peer.clipPath(path);
+        final boolean result = dest.clipPath(path);
         if (debug) {
-            Log.d(tag, "clipPath(" + path + "):" + result);
+            Log.d(TAG, "clipPath(" + path + "):" + result);
         }
         return result;
     }
@@ -569,9 +571,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRegion(Region region, Region.Op op) {
-        final boolean result = peer.clipRegion(region, op);
+        final boolean result = dest.clipRegion(region, op);
         if (debug) {
-            Log.d(tag, "clipRegion(" + region + "," + op + "):" + result);
+            Log.d(TAG, "clipRegion(" + region + "," + op + "):" + result);
         }
         return result;
     }
@@ -588,27 +590,27 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean clipRegion(Region region) {
-        final boolean result = peer.clipRegion(region);
+        final boolean result = dest.clipRegion(region);
         if (debug) {
-            Log.d(tag, "clipRegion(" + region + "):" + result);
+            Log.d(TAG, "clipRegion(" + region + "):" + result);
         }
         return result;
     }
 
     @Override
     public DrawFilter getDrawFilter() {
-        final DrawFilter result = peer.getDrawFilter();
+        final DrawFilter result = dest.getDrawFilter();
         if (debug) {
-            Log.d(tag, "getDrawFilter():" + result);
+            Log.d(TAG, "getDrawFilter():" + result);
         }
         return result;
     }
 
     @Override
     public void setDrawFilter(DrawFilter filter) {
-        peer.setDrawFilter(filter);
+        dest.setDrawFilter(filter);
         if (debug) {
-            Log.d(tag, "setDrawFilter(" + filter + ")");
+            Log.d(TAG, "setDrawFilter(" + filter + ")");
         }
     }
 
@@ -625,9 +627,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean quickReject(RectF rect, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(rect, type);
+        final boolean result = dest.quickReject(rect, type);
         if (debug) {
-            Log.d(tag, "quickReject(" + rect + "," + type + "):" + result);
+            Log.d(TAG, "quickReject(" + rect + "," + type + "):" + result);
         }
         return result;
     }
@@ -650,9 +652,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean quickReject(Path path, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(path, type);
+        final boolean result = dest.quickReject(path, type);
         if (debug) {
-            Log.d(tag, "quickReject(" + path + "," + type + "):" + result);
+            Log.d(TAG, "quickReject(" + path + "," + type + "):" + result);
         }
         return result;
     }
@@ -679,9 +681,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean quickReject(float left, float top, float right, float bottom, Canvas.EdgeType type) {
-        final boolean result = peer.quickReject(left, top, right, bottom, type);
+        final boolean result = dest.quickReject(left, top, right, bottom, type);
         if (debug) {
-            Log.d(tag, "quickReject(" + left + "," + top + "," + right + "," + bottom + "," + type + "):" + result);
+            Log.d(TAG, "quickReject(" + left + "," + top + "," + right + "," + bottom + "," + type + "):" + result);
         }
         return result;
     }
@@ -695,9 +697,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public boolean getClipBounds(Rect bounds) {
-        final boolean result = peer.getClipBounds(bounds);
+        final boolean result = dest.getClipBounds(bounds);
         if (debug) {
-            Log.d(tag, "getClipBounds(" + bounds + ")");
+            Log.d(TAG, "getClipBounds(" + bounds + ")");
         }
         return result;
     }
@@ -712,9 +714,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRGB(int r, int g, int b) {
-        peer.drawRGB(r, g, b);
+        dest.drawRGB(r, g, b);
         if (debug) {
-            Log.d(tag, "drawRGB(" + r + "," + g + "," + b + ")");
+            Log.d(TAG, "drawRGB(" + r + "," + g + "," + b + ")");
         }
     }
 
@@ -729,9 +731,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawARGB(int a, int r, int g, int b) {
-        peer.drawARGB(a, r, g, b);
+        dest.drawARGB(a, r, g, b);
         if (debug) {
-            Log.d(tag, "drawARGB(" + a + "," + r + "," + g + "," + b + ")");
+            Log.d(TAG, "drawARGB(" + a + "," + r + "," + g + "," + b + ")");
         }
     }
 
@@ -743,9 +745,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawColor(int color) {
-        peer.drawColor(color);
+        dest.drawColor(color);
         if (debug) {
-            Log.d(tag, "drawColor(" + color + ")");
+            Log.d(TAG, "drawColor(" + color + ")");
         }
     }
 
@@ -758,9 +760,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawColor(int color, PorterDuff.Mode mode) {
-        peer.drawColor(color, mode);
+        dest.drawColor(color, mode);
         if (debug) {
-            Log.d(tag, "drawColor(" + color + "," + mode + ")");
+            Log.d(TAG, "drawColor(" + color + "," + mode + ")");
         }
     }
 
@@ -773,9 +775,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPaint(Paint paint) {
-        peer.drawPaint(paint);
+        dest.drawPaint(paint);
         if (debug) {
-            Log.d(tag, "drawPaint(" + paint + ")");
+            Log.d(TAG, "drawPaint(" + paint + ")");
         }
     }
 
@@ -797,9 +799,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPoints(float[] pts, int offset, int count, Paint paint) {
-        peer.drawPoints(pts, offset, count, paint);
+        dest.drawPoints(pts, offset, count, paint);
         if (debug) {
-            Log.d(tag, "drawPoints(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint);
+            Log.d(TAG, "drawPoints(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint);
         }
     }
 
@@ -808,9 +810,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPoints(float[] pts, Paint paint) {
-        peer.drawPoints(pts, paint);
+        dest.drawPoints(pts, paint);
         if (debug) {
-            Log.d(tag, "drawPoints(" + Arrays.toString(pts) + "," + paint + ")");
+            Log.d(TAG, "drawPoints(" + Arrays.toString(pts) + "," + paint + ")");
         }
     }
 
@@ -819,9 +821,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPoint(float v, float v2, Paint paint) {
-        peer.drawPoint(v, v2, paint);
+        dest.drawPoint(v, v2, paint);
         if (debug) {
-            Log.d(tag, "drawPoint(" + v + "," + v2 + "," + paint);
+            Log.d(TAG, "drawPoint(" + v + "," + v2 + "," + paint);
         }
     }
 
@@ -836,9 +838,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawLine(float startX, float startY, float stopX, float stopY, Paint paint) {
-        peer.drawLine(startX, startY, stopX, stopY, paint);
+        dest.drawLine(startX, startY, stopX, stopY, paint);
         if (debug) {
-            Log.d(tag, "drawLine(" + startX + "," + startY + "," + stopX + "," + stopY + "," + paint + ")");
+            Log.d(TAG, "drawLine(" + startX + "," + startY + "," + stopX + "," + stopY + "," + paint + ")");
         }
     }
 
@@ -859,17 +861,17 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawLines(float[] pts, int offset, int count, Paint paint) {
-        peer.drawLines(pts, offset, count, paint);
+        dest.drawLines(pts, offset, count, paint);
         if (debug) {
-            Log.d(tag, "drawLines(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint + ")");
+            Log.d(TAG, "drawLines(" + Arrays.toString(pts) + "," + offset + "," + count + "," + paint + ")");
         }
     }
 
     @Override
     public void drawLines(float[] pts, Paint paint) {
-        peer.drawLines(pts, paint);
+        dest.drawLines(pts, paint);
         if (debug) {
-            Log.d(tag, "drawLines(" + Arrays.toString(pts) + "," + paint + ")");
+            Log.d(TAG, "drawLines(" + Arrays.toString(pts) + "," + paint + ")");
         }
     }
 
@@ -882,9 +884,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRect(RectF rect, Paint paint) {
-        peer.drawRect(rect, paint);
+        dest.drawRect(rect, paint);
         if (debug) {
-            Log.d(tag, "drawRect(" + rect + "," + paint + ")");
+            Log.d(TAG, "drawRect(" + rect + "," + paint + ")");
         }
     }
 
@@ -897,9 +899,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRect(Rect r, Paint paint) {
-        peer.drawRect(r, paint);
+        dest.drawRect(r, paint);
         if (debug) {
-            Log.d(tag, "drawRect(" + r + "," + paint + ")");
+            Log.d(TAG, "drawRect(" + r + "," + paint + ")");
         }
 
     }
@@ -916,9 +918,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRect(float left, float top, float right, float bottom, Paint paint) {
-        peer.drawRect(left, top, right, bottom, paint);
+        dest.drawRect(left, top, right, bottom, paint);
         if (debug) {
-            Log.d(tag, "drawRect(" + left + "," + top + "," + right + "," + bottom + "," + paint + ")");
+            Log.d(TAG, "drawRect(" + left + "," + top + "," + right + "," + bottom + "," + paint + ")");
         }
     }
 
@@ -930,9 +932,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawOval(RectF oval, Paint paint) {
-        peer.drawOval(oval, paint);
+        dest.drawOval(oval, paint);
         if (debug) {
-            Log.d(tag, "drawOval(" + oval + "," + paint + ")");
+            Log.d(TAG, "drawOval(" + oval + "," + paint + ")");
         }
     }
 
@@ -948,9 +950,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawCircle(float cx, float cy, float radius, Paint paint) {
-        peer.drawCircle(cx, cy, radius, paint);
+        dest.drawCircle(cx, cy, radius, paint);
         if (debug) {
-            Log.d(tag, "drawCircle(" + cx + "," + cy + "," + radius + "," + paint + ")");
+            Log.d(TAG, "drawCircle(" + cx + "," + cy + "," + radius + "," + paint + ")");
         }
     }
 
@@ -978,9 +980,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawArc(RectF oval, float startAngle, float sweepAngle, boolean useCenter, Paint paint) {
-        peer.drawArc(oval, startAngle, sweepAngle, useCenter, paint);
+        dest.drawArc(oval, startAngle, sweepAngle, useCenter, paint);
         if (debug) {
-            Log.d(tag, "drawArc(" + oval + "," + startAngle + "," + sweepAngle + "," + useCenter + "," + paint + ")");
+            Log.d(TAG, "drawArc(" + oval + "," + startAngle + "," + sweepAngle + "," + useCenter + "," + paint + ")");
         }
     }
 
@@ -995,9 +997,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawRoundRect(RectF rect, float rx, float ry, Paint paint) {
-        peer.drawRoundRect(rect, rx, ry, paint);
+        dest.drawRoundRect(rect, rx, ry, paint);
         if (debug) {
-            Log.d(tag, "drawRoundRect(" + rect + "," + rx + "," + ry + "," + paint + ")");
+            Log.d(TAG, "drawRoundRect(" + rect + "," + rx + "," + ry + "," + paint + ")");
         }
     }
 
@@ -1010,9 +1012,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPath(Path path, Paint paint) {
-        peer.drawPath(path, paint);
+        dest.drawPath(path, paint);
         if (debug) {
-            Log.d(tag, "drawPath(" + path + "," + paint + ")");
+            Log.d(TAG, "drawPath(" + path + "," + paint + ")");
         }
     }
 
@@ -1037,9 +1039,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, float left, float top, Paint paint) {
-        peer.drawBitmap(bitmap, left, top, paint);
+        dest.drawBitmap(bitmap, left, top, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + left + "," + top + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + bitmap + "," + left + "," + top + "," + paint + ")");
         }
     }
 
@@ -1067,9 +1069,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Rect src, RectF dst, Paint paint) {
-        peer.drawBitmap(bitmap, src, dst, paint);
+        dest.drawBitmap(bitmap, src, dst, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
         }
     }
 
@@ -1097,9 +1099,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Rect src, Rect dst, Paint paint) {
-        peer.drawBitmap(bitmap, src, dst, paint);
+        dest.drawBitmap(bitmap, src, dst, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + bitmap + "," + src + "," + dst + "," + paint + ")");
         }
     }
 
@@ -1124,9 +1126,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(int[] colors, int offset, int stride, float x, float y, int width, int height, boolean hasAlpha, Paint paint) {
-        peer.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
+        dest.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
         }
     }
 
@@ -1134,9 +1136,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(int[] colors, int offset, int stride, int x, int y, int width, int height, boolean hasAlpha, Paint paint) {
-        peer.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
+        dest.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + Arrays.toString(colors) + "," + offset + "," + stride + "," + x + "," + y + "," + width + "," + height + "," + hasAlpha + "," + paint + ")");
         }
     }
 
@@ -1149,9 +1151,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmap(Bitmap bitmap, Matrix matrix, Paint paint) {
-        peer.drawBitmap(bitmap, matrix, paint);
+        dest.drawBitmap(bitmap, matrix, paint);
         if (debug) {
-            Log.d(tag, "drawBitmap(" + bitmap + "," + matrix + "," + paint + ")");
+            Log.d(TAG, "drawBitmap(" + bitmap + "," + matrix + "," + paint + ")");
         }
     }
 
@@ -1183,9 +1185,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawBitmapMesh(Bitmap bitmap, int meshWidth, int meshHeight, float[] verts, int vertOffset, int[] colors, int colorOffset, Paint paint) {
-        peer.drawBitmapMesh(bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint);
+        dest.drawBitmapMesh(bitmap, meshWidth, meshHeight, verts, vertOffset, colors, colorOffset, paint);
         if (debug) {
-            Log.d(tag, "drawBitmapMesh(" + bitmap + "," + meshWidth + "," + meshHeight + "," + Arrays.toString(verts) + "," + vertOffset + "," + Arrays.toString(colors) + "," + colorOffset + "," + paint + ")");
+            Log.d(TAG, "drawBitmapMesh(" + bitmap + "," + meshWidth + "," + meshHeight + "," + Arrays.toString(verts) + "," + vertOffset + "," + Arrays.toString(colors) + "," + colorOffset + "," + paint + ")");
         }
     }
 
@@ -1221,9 +1223,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawVertices(Canvas.VertexMode mode, int vertexCount, float[] verts, int vertOffset, float[] texs, int texOffset, int[] colors, int colorOffset, short[] indices, int indexOffset, int indexCount, Paint paint) {
-        peer.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint);
+        dest.drawVertices(mode, vertexCount, verts, vertOffset, texs, texOffset, colors, colorOffset, indices, indexOffset, indexCount, paint);
         if(debug) {
-            Log.d(tag, "drawVertices("+mode+","+vertexCount+","+Arrays.toString(verts)+","+vertOffset+","+Arrays.toString(texs)+","+texOffset+","+Arrays.toString(colors)+","+colorOffset+","+Arrays.toString(indices)+","+indexOffset+","+indexCount+","+paint+")");
+            Log.d(TAG, "drawVertices("+mode+","+vertexCount+","+Arrays.toString(verts)+","+vertOffset+","+Arrays.toString(texs)+","+texOffset+","+Arrays.toString(colors)+","+colorOffset+","+Arrays.toString(indices)+","+indexOffset+","+indexCount+","+paint+")");
         }
     }
 
@@ -1238,9 +1240,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(char[] text, int index, int count, float x, float y, Paint paint) {
-        peer.drawText(text, index, count, x, y, paint);
+        dest.drawText(text, index, count, x, y, paint);
         if(debug) {
-            Log.d(tag, "drawText("+Arrays.toString(text)+","+index+","+count+","+x+","+y+","+paint+")");
+            Log.d(TAG, "drawText("+Arrays.toString(text)+","+index+","+count+","+x+","+y+","+paint+")");
         }
     }
 
@@ -1255,9 +1257,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(String text, float x, float y, Paint paint) {
-        peer.drawText(text, x, y, paint);
+        dest.drawText(text, x, y, paint);
         if(debug) {
-            Log.d(tag, "drawText("+text+","+x+","+y+","+paint+")");
+            Log.d(TAG, "drawText("+text+","+x+","+y+","+paint+")");
         }
     }
 
@@ -1274,9 +1276,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(String text, int start, int end, float x, float y, Paint paint) {
-        peer.drawText(text, start, end, x, y, paint);
+        dest.drawText(text, start, end, x, y, paint);
         if(debug) {
-            Log.d(tag, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
+            Log.d(TAG, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
         }
     }
 
@@ -1295,9 +1297,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawText(CharSequence text, int start, int end, float x, float y, Paint paint) {
-        peer.drawText(text, start, end, x, y, paint);
+        dest.drawText(text, start, end, x, y, paint);
         if(debug) {
-            Log.d(tag, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
+            Log.d(TAG, "drawText("+text+","+start+","+end+","+x+","+y+","+paint+")");
         }
     }
 
@@ -1318,9 +1320,9 @@ public class ExCanvas extends Canvas {
     @Deprecated
     @Override
     public void drawPosText(char[] text, int index, int count, float[] pos, Paint paint) {
-        peer.drawPosText(text, index, count, pos, paint);
+        dest.drawPosText(text, index, count, pos, paint);
         if(debug) {
-            Log.d(tag, "drawPosText("+Arrays.toString(text)+","+index+","+count+","+Arrays.toString(pos)+","+paint+")");
+            Log.d(TAG, "drawPosText("+Arrays.toString(text)+","+index+","+count+","+Arrays.toString(pos)+","+paint+")");
         }
     }
 
@@ -1338,9 +1340,9 @@ public class ExCanvas extends Canvas {
     @Deprecated
     @Override
     public void drawPosText(String text, float[] pos, Paint paint) {
-        peer.drawPosText(text, pos, paint);
+        dest.drawPosText(text, pos, paint);
         if(debug) {
-            Log.d(tag, "drawPosText("+text+","+Arrays.toString(pos)+","+paint+")");
+            Log.d(TAG, "drawPosText("+text+","+Arrays.toString(pos)+","+paint+")");
         }
     }
 
@@ -1359,9 +1361,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawTextOnPath(char[] text, int index, int count, Path path, float hOffset, float vOffset, Paint paint) {
-        peer.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint);
+        dest.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint);
         if(debug) {
-            Log.d(tag, "drawTextOnPath("+Arrays.toString(text)+","+index+","+count+","+path+","+hOffset+","+vOffset+","+paint+")");
+            Log.d(TAG, "drawTextOnPath("+Arrays.toString(text)+","+index+","+count+","+path+","+hOffset+","+vOffset+","+paint+")");
         }
     }
 
@@ -1380,9 +1382,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawTextOnPath(String text, Path path, float hOffset, float vOffset, Paint paint) {
-        peer.drawTextOnPath(text, path, hOffset, vOffset, paint);
+        dest.drawTextOnPath(text, path, hOffset, vOffset, paint);
         if(debug) {
-            Log.d(tag, "drawTextOnPath("+text+","+path+","+hOffset+","+vOffset+","+paint+")");
+            Log.d(TAG, "drawTextOnPath("+text+","+path+","+hOffset+","+vOffset+","+paint+")");
         }
     }
 
@@ -1395,9 +1397,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPicture(Picture picture) {
-        peer.drawPicture(picture);
+        dest.drawPicture(picture);
         if(debug) {
-            Log.d(tag, "drawPicture("+picture+")");
+            Log.d(TAG, "drawPicture("+picture+")");
         }
     }
 
@@ -1406,9 +1408,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPicture(Picture picture, RectF dst) {
-        peer.drawPicture(picture, dst);
+        dest.drawPicture(picture, dst);
         if(debug) {
-            Log.d(tag, "drawPicture("+picture+","+dst+")");
+            Log.d(TAG, "drawPicture("+picture+","+dst+")");
         }
     }
 
@@ -1417,9 +1419,9 @@ public class ExCanvas extends Canvas {
      */
     @Override
     public void drawPicture(Picture picture, Rect dst) {
-        peer.drawPicture(picture, dst);
+        dest.drawPicture(picture, dst);
         if(debug) {
-            Log.d(tag,"drawPicture("+picture+","+dst+")");
+            Log.d(TAG,"drawPicture("+picture+","+dst+")");
         }
     }
 }
